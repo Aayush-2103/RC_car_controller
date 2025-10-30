@@ -1,0 +1,53 @@
+I have just let the template to be as it is.
+Used 
+
+npx expo install expo-dev-client
+npx expo install react-native-ble-plx
+
+To access the bluetooth functionality
+
+Changed app.json and added
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/splash-icon.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#ffffff",
+          "dark": {
+            "backgroundColor": "#000000"
+          }
+        }
+      ],
+      [
+        "react-native-ble-plx",
+        {
+          "isBackground": false,
+          "bluetoothPeripheralUsageDescription": "This app needs to scan for Bluetooth devices",
+          "modes": ["peripheral", "central"],
+          "bluetoothAlwaysPermission": "Allow $(PRODUCT_NAME) to use Bluetooth"
+        }
+      ]
+    ],
+
+and 
+
+    "android": {
+      "permissions": [
+        "android.permission.BLUETOOTH_SCAN",
+        "android.permission.BLUETOOTH_CONNECT",
+        "android.permission.ACCESS_FINE_LOCATION"
+      ]
+    },
+
+to the already given template
+
+The template code has .tsx typescript. We can use either JS or typescript.
+
+App/(tab) -> contains files that will run for the home screen while index.js or index.tsx should retain its file name as it is the first default screen which opens up after the app runs. Also (tab) provides a feature to have an inbuilt navigation in the bottom of the screen to switch between different screens. {U can research more using AI}
+
+Assets -> contains all the images used in the app
+
+Components -> contains all the reusable components which is similar across various screens.
