@@ -1,9 +1,9 @@
 {
   "expo": {
-    "name": "App",
-    "slug": "App",
+    "name": "AutoCart",
+    "slug": "AutoCart",
     "version": "1.0.0",
-    "orientation": "portrait",
+    "orientation": "default",
     "icon": "./assets/images/icon.png",
     "scheme": "app",
     "userInterfaceStyle": "automatic",
@@ -21,19 +21,17 @@
     },
     "android": {
       "permissions": [
-        "android.permission.BLUETOOTH_SCAN",
-        "android.permission.BLUETOOTH_CONNECT",
         "android.permission.ACCESS_FINE_LOCATION",
         "android.permission.BLUETOOTH",
+        "android.permission.BLUETOOTH_SCAN",
         "android.permission.BLUETOOTH_ADMIN",
+        "android.permission.BLUETOOTH_CONNECT",
         "android.permission.POST_NOTIFICATIONS",
         "android.permission.VIBRATE"
       ],
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
-        "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundImage": "./assets/images/android-icon-background.png",
-        "monochromeImage": "./assets/images/android-icon-monochrome.png"
+        "backgroundColor": "#18cdd6",
+        "foregroundImage": "./assets/images/AutoCart-android-icon-foreground.png"
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
@@ -46,7 +44,7 @@
             "name": "Default",
             "importance": "HIGH",
             "sound": "default",
-            "vibrationPattern": [0, 250, 250, 250],
+            "vibrationPattern": [0, 750, 750, 750],
             "enableLights": true
           }
         ]
