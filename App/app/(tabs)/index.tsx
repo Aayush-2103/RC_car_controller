@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import * as React from 'react';
+import { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -59,7 +60,7 @@ const requestBluetoothPermission = async () => {
 };
 
 
-export default function App() {
+export default function App(): any {
   // State to hold the connected device name
   const [connectedDevice, setConnectedDevice] = useState('None');
   // State to manage loading indicator
@@ -76,8 +77,8 @@ export default function App() {
         handleRefresh();
       } else {
         Alert.alert(
-          "Permission Denied", 
-          "Cannot check Bluetooth status without permission."
+          'Permission Denied',
+          'Cannot check Bluetooth status without permission.',
         );
       }
     });
@@ -94,17 +95,17 @@ export default function App() {
     setConnectedDevice('Checking...');
 
     try {
-        // Check if Bluetooth is enabled (support multiple library method names)
-        let enabled = false;
-        const btAny: any = ReactNativeBluetoothClassic as any;
-        if (typeof btAny.isBluetoothEnabled === 'function') {
-          enabled = await btAny.isBluetoothEnabled();
-        } else if (typeof btAny.isEnabled === 'function') {
-          enabled = await btAny.isEnabled();
-        } else {
-          // assume enabled if method not present — library may not support runtime check
-          enabled = true;
-        }
+      // Check if Bluetooth is enabled (support multiple library method names)
+      let enabled = false;
+      const btAny: any = ReactNativeBluetoothClassic as any;
+      if (typeof btAny.isBluetoothEnabled === 'function') {
+        enabled = await btAny.isBluetoothEnabled();
+      } else if (typeof btAny.isEnabled === 'function') {
+        enabled = await btAny.isEnabled();
+      } else {
+        // assume enabled if method not present — library may not support runtime check
+        enabled = true;
+      }
       if (!enabled) {
         Alert.alert("Bluetooth is Off", "Please turn on Bluetooth to see connections.");
         setConnectedDevice('Bluetooth is off');
@@ -112,20 +113,22 @@ export default function App() {
         return;
       }
 
-        // Get the list of currently connected devices. Different runtimes expose
-        // either getConnectedDevices() or getBondedDevices(); try both safely.
-        let devices: any[] = [];
-        if (typeof btAny.getConnectedDevices === 'function') {
-          devices = await btAny.getConnectedDevices();
-        } else if (typeof btAny.getBondedDevices === 'function') {
-          // bonded = paired devices; may be acceptable fallback
-          devices = await btAny.getBondedDevices();
-        } else if (typeof btAny.getPairedDevices === 'function') {
-          devices = await btAny.getPairedDevices();
-        } else {
-          // library doesn't expose a known API — throw to surface to user
-          throw new Error('Bluetooth library does not expose getConnectedDevices/getBondedDevices API');
-        }
+      // Get the list of currently connected devices. Different runtimes expose
+      // either getConnectedDevices() or getBondedDevices(); try both safely.
+      let devices: any[] = [];
+      if (typeof btAny.getConnectedDevices === 'function') {
+        devices = await btAny.getConnectedDevices();
+      } else if (typeof btAny.getBondedDevices === 'function') {
+        // bonded = paired devices; may be acceptable fallback
+        devices = await btAny.getBondedDevices();
+      } else if (typeof btAny.getPairedDevices === 'function') {
+        devices = await btAny.getPairedDevices();
+      } else {
+        // library doesn't expose a known API — throw to surface to user
+        throw new Error(
+          'Bluetooth library does not expose getConnectedDevices/getBondedDevices API',
+        );
+      }
 
         if (devices && devices.length > 0) {
           setConnectedDevice(devices[0].name ?? devices[0].id ?? 'Unknown');
@@ -141,25 +144,23 @@ export default function App() {
     }
   };
 
-  return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Bluetooth Status</Text>
-
-      <Text style={styles.statusLabel}>Currently Connected:</Text>
-      <View style={styles.deviceContainer}>
-        {isLoading ? (
-          <ActivityIndicator size="large" color="#007AFF" />
-        ) : (
-          <Text style={styles.deviceName}>{connectedDevice}</Text>
-        )}
-      </View>
-
-      <Button
-        title={isLoading ? 'Refreshing...' : 'Refresh Connection'}
-        onPress={handleRefresh}
-        disabled={isLoading || !hasPermission}
-      />
-    </View>
+  return React.createElement(
+    View,
+    { style: styles.container },
+    React.createElement(Text, { style: styles.title }, 'Bluetooth Status'),
+    React.createElement(Text, { style: styles.statusLabel }, 'Currently Connected:'),
+    React.createElement(
+      View,
+      { style: styles.deviceContainer },
+      isLoading
+        ? React.createElement(ActivityIndicator, { size: 'large', color: '#007AFF' })
+        : React.createElement(Text, { style: styles.deviceName }, connectedDevice),
+    ),
+    React.createElement(Button, {
+      title: isLoading ? 'Refreshing...' : 'Refresh Connection',
+      onPress: handleRefresh,
+      disabled: isLoading || !hasPermission,
+    }),
   );
 }
 

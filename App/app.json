@@ -31,7 +31,7 @@
       ],
       "adaptiveIcon": {
         "backgroundColor": "#18cdd6",
-        "foregroundImage": "./assets/images/AutoCart-android-icon-foreground.png"
+        "foregroundImage": "./assets/images/autocart-android-icon-foreground.png"
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
