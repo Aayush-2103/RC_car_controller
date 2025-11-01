@@ -32,7 +32,7 @@ type PermissionStatusMap = Record<string, (typeof RESULTS)[keyof typeof RESULTS]
 
 // The list of permissions based on your image
 // We only use permissions available on Android
-const PERMISSION_LIST: PermissionItem[] = [
+export const PERMISSION_LIST: PermissionItem[] = [
   {
     id: '1',
     title: 'Bluetooth Connect',
