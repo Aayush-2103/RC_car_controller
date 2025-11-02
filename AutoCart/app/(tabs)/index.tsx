@@ -1,4 +1,6 @@
 // app/index.tsx
+import LottieView from 'lottie-react-native';
+
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -268,72 +270,90 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
-      {/* ... Your header is perfect ... */}
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Connections</Text>
-      </View>
+    <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
 
-      <View style={styles.content}>
-        {/* ... Your Bluetooth switch row is perfect ... */}
-        <View style={styles.rowTopLeft}>
-          <Text style={styles.label}>Bluetooth</Text>
-          <Switch
-            value={bluetoothOn}
-            disabled={true}
-            trackColor={{ false: '#d0d0d0', true: '#34C759' }}
-          />
-        </View>
+    {/* Header */}
+    <View style={styles.header}>
+      <Text style={styles.headerTitle}>Smart Trolley</Text>
+    </View>
 
-        {/* ... Your device status row is perfect ... */}
-        <View style={styles.deviceStatusRow}>
-          <Text style={styles.deviceStatusLabel}>Device connected:</Text>
-          <Text style={styles.deviceStatusName}>{connectedDevice?.name || 'No device connected'}</Text>
-        </View>
+    {/* Main animation & connect UI */}
+    <View style={styles.centerContainer}>
 
-        {/* --- MODIFIED INPUT AREA --- */}
-        <View style={styles.uuidInputArea}>
-          <Text style={styles.uuidInputLabel}>Enter Device Name:</Text> 
-          <TextInput
-            style={styles.uuidInput}
-            value={deviceNameInput} // <-- MODIFIED
-            onChangeText={setDeviceNameInput} // <-- MODIFIED
-            placeholder="e.g., My_RC_Car or HC-05" // <-- MODIFIED
-            autoCapitalize="none"
-            autoCorrect={false}
-          />
-          <TouchableOpacity
-            style={styles.scanConnectButton}
-            onPress={handleScanAndConnect}
-            disabled={scanning || !deviceNameInput} // <-- MODFIED
-          >
-            <Text style={styles.scanConnectButtonText}>
-              {scanning ? 'Scanning...' : 'Scan and Connect'}
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      {/* ... Your test vibration button is fine ... */}
-      <View style={styles.centerContainer}>
-        <Text style={styles.vibrateButton} onPress={() => {
-          Vibration.vibrate([1000, 1000, 1000], true);
-          setVibrating(true);
-        }}>
-          Test Vibration
-        </Text>
-      </View>
-
-      {/* ... Your stop button is perfect, but let's only show it if vibrating ... */}
-      {vibrating && ( // <-- NEW
-        <View style={styles.bottomButtonContainer}>
-          <View style={styles.stopButtonWrapper}>
-            <Text style={styles.stopButton} onPress={handleStopVibration}>
-              Stop
-            </Text>
-          </View>
-        </View>
+      {/* Show different animations depending on connection & vibration state */}
+      {!connectedDevice ? (
+        // not connected -> show connect animation
+        <LottieView
+          source={require('../assets/animations/connect.json')}
+          autoPlay
+          loop
+          style={{ width: 300, height: 300 }}
+        />
+      ) : (
+        // connected -> show connected animation
+        <LottieView
+          source={require('../assets/animations/connected.json')}
+          autoPlay
+          loop
+          style={{ width: 300, height: 300 }}
+        />
       )}
-    </SafeAreaView>
+
+      {/* Connect / Disconnect button */}
+      <TouchableOpacity
+        style={[
+          styles.scanConnectButton,
+          { backgroundColor: connectedDevice ? '#FF3B30' : '#007AFF', marginTop: 18 },
+        ]}
+        onPress={connectedDevice ? async () => {
+            // If connected, call disconnect logic (keep your existing disconnect logic)
+            try {
+              // If you have a disconnect function that uses connectedDevice, call it here.
+              // Fallback: calling handleStopVibration to stop vibration then resetting device
+              await (async () => {
+                if (connectedDevice && connectedDevice.cancelConnection) {
+                  // try to disconnect device safely if property available
+                  try { await connectedDevice.cancelConnection(); } catch(e){/* ignore */ }
+                }
+                // your existing cleanup:
+                handleStopVibration();
+                setConnectedDevice(null);
+              })();
+            } catch (e) {
+              console.warn('Disconnect error', e);
+            }
+          }
+          : handleScanAndConnect
+        }
+      >
+        <Text style={styles.scanConnectButtonText}>
+          {connectedDevice ? 'Disconnect' : (scanning ? 'Scanning...' : 'Connect')}
+        </Text>
+      </TouchableOpacity>
+    </View>
+
+    {/* Status & Device info */}
+    <View style={styles.deviceStatusRow}>
+      <Text style={styles.deviceStatusLabel}>Device:</Text>
+      <Text style={styles.deviceStatusName}>
+        {connectedDevice ? connectedDevice.name : 'Not connected'}
+      </Text>
+    </View>
+
+    {/* Vibration animation + Stop button (if vibrating) */}
+    {vibrating && (
+      <View style={styles.bottomButtonContainer}>
+        <LottieView
+          source={require('../assets/animations/vibration.json')}
+          autoPlay
+          loop
+          style={{ width: 180, height: 180 }}
+        />
+        <TouchableOpacity onPress={handleStopVibration} style={{ marginTop: 8 }}>
+          <Text style={styles.stopButton}>Stop Vibration</Text>
+        </TouchableOpacity>
+      </View>
+    )}
+  </SafeAreaView>
   );
 }
