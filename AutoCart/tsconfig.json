@@ -2,6 +2,12 @@
   "extends": "expo/tsconfig.base",
   "compilerOptions": {
     "strict": true,
+    
+    /* --- ADD THESE TWO LINES --- */
+    "esModuleInterop": true,
+    "jsx": "react-native",
+    /* --------------------------- */
+
     "paths": {
       "@/*": [
         "./*"
@@ -12,6 +18,7 @@
     "**/*.ts",
     "**/*.tsx",
     ".expo/types/**/*.ts",
-    "expo-env.d.ts"
-, "app/(tabs)/index.tsx"  ]
+    "expo-env.d.ts",
+    "app/(tabs)/index.tsx"
+  ]
 }

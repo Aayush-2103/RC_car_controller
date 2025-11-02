@@ -1,6 +1,6 @@
-// app/index.tsx
-import LottieView from 'lottie-react-native';
+// --- FULLY CORRECTED app/(tabs)/index.tsx ---
 
+import LottieView from 'lottie-react-native';
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -8,22 +8,21 @@ import {
   Switch,
   StyleSheet,
   StatusBar,
-  TextInput,
+  TextInput, // <-- THIS IS NEEDED
   TouchableOpacity,
-  Platform, // <-- NEW
+  Platform,
   AppState,
   Vibration,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { BleManager, Device, State } from 'react-native-ble-plx'; // <-- NEW: Added State & Device
-import { PERMISSIONS, requestMultiple, RESULTS } from 'react-native-permissions'; // <-- NEW
+import { BleManager, Device, State } from 'react-native-ble-plx';
+import { PERMISSIONS, requestMultiple, RESULTS } from 'react-native-permissions';
 
 // Initialize BLE manager once
 const bleManager = new BleManager();
 
 // (Your styles are perfect, so I'm hiding them for space)
 const styles = StyleSheet.create({
-  /* ... your styles ... */
   container: {
     flex: 1,
     backgroundColor: '#ffffff',
@@ -56,6 +55,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'flex-start',
+    marginTop: 20,
   },
   switch: {
     transform: [{ scaleX: 1.3 }, { scaleY: 1.3 }],
@@ -121,6 +121,7 @@ const styles = StyleSheet.create({
     color: '#007AFF',
     fontWeight: 'bold',
   },
+  // --- THESE STYLES WILL NOW BE USED ---
   uuidInputArea: {
     marginTop: 28,
     marginLeft: 28,
@@ -186,20 +187,20 @@ async function requestBluetoothPermissions() {
 
 export default function HomeScreen() {
   const [bluetoothOn, setBluetoothOn] = useState<boolean>(false);
-  const [connectedDevice, setConnectedDevice] = useState<Device | null>(null); // <-- MODIFIED
+  const [connectedDevice, setConnectedDevice] = useState<Device | null>(null);
   const [vibrating, setVibrating] = useState<boolean>(false);
-  const [deviceNameInput, setDeviceNameInput] = useState(''); // <-- MODIFIED
+  const [deviceNameInput, setDeviceNameInput] = useState(''); // <-- This state will now be used
   const [scanning, setScanning] = useState(false);
 
-  // Subscribe to BLE state changes (Your code is perfect)
+  // Subscribe to BLE state changes
   useEffect(() => {
     const subscription = bleManager.onStateChange((state) => {
-      setBluetoothOn(state === State.PoweredOn); // <-- MODIFIED (use State enum)
+      setBluetoothOn(state === State.PoweredOn);
     }, true);
     return () => subscription.remove();
   }, []);
 
-  // Listen for BLE device connection/disconnection (Your code is perfect)
+  // Listen for BLE device connection/disconnection
   useEffect(() => {
     let disconnectSub: any = null;
     if (connectedDevice) {
@@ -217,7 +218,7 @@ export default function HomeScreen() {
     };
   }, [connectedDevice]);
 
-  // Stop vibration handler (Your code is perfect)
+  // Stop vibration handler
   const handleStopVibration = () => {
     Vibration.cancel();
     setVibrating(false);
@@ -225,16 +226,20 @@ export default function HomeScreen() {
 
   // Scan and connect handler
   const handleScanAndConnect = async () => {
-    // --- THIS IS THE CRITICAL FIX ---
+    // Check for permissions
     const hasPermissions = await requestBluetoothPermissions();
     if (!hasPermissions) {
       console.log('No permissions, scan aborted.');
       return;
     }
-    // --- END OF FIX ---
-
-    if (!deviceNameInput) return; // <-- MODIFIED
-    console.log('Scanning for device name:', deviceNameInput); // <-- MODIFIED
+    
+    // *** THIS IS THE CRITICAL CHECK ***
+    // It will now work because deviceNameInput will be filled by the user
+    if (!deviceNameInput) {
+      console.log('No device name entered.');
+      return; 
+    }
+    console.log('Scanning for device name:', deviceNameInput);
 
     setScanning(true);
     bleManager.startDeviceScan(null, null, async (error, device) => {
@@ -244,9 +249,8 @@ export default function HomeScreen() {
         return;
       }
 
-      // --- THIS IS THE BIG SUGGESTION ---
-      // We check for name, not ID.
-      if (device && device.name === deviceNameInput) { // <-- MODIFIED
+      // Check for device name match
+      if (device && device.name === deviceNameInput) {
         console.log('Found matching device!', device.name);
         bleManager.stopDeviceScan();
         try {
@@ -257,7 +261,6 @@ export default function HomeScreen() {
         }
         setScanning(false);
       }
-      // --- END OF SUGGESTION ---
     });
 
     // Stop scan after 8 seconds if not found
@@ -268,15 +271,58 @@ export default function HomeScreen() {
     }, 8000);
   };
 
+  // --- START OF THE RENDER / JSX ---
   return (
     <SafeAreaView style={styles.container}>
     <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
 
     {/* Header */}
     <View style={styles.header}>
-      <Text style={styles.headerTitle}>Smart Trolley</Text>
+      <Text style={styles.headerTitle}>Connections</Text>
     </View>
 
+    <View style={styles.content}>
+      {/* ... Your Bluetooth switch row is perfect ... */}
+      <View style={styles.rowTopLeft}>
+        <Text style={styles.label}>Bluetooth</Text>
+        <Switch
+          value={bluetoothOn}
+          disabled={true}
+          trackColor={{ false: '#d0d0d0', true: '#34C759' }}
+        />
+      </View>
+
+      {/* Status & Device info */}
+      <View style={styles.deviceStatusRow}>
+        <Text style={styles.deviceStatusLabel}>Device:</Text>
+        <Text style={styles.deviceStatusName}>
+          {connectedDevice ? connectedDevice.name : 'Not connected'}
+        </Text>
+      </View>
+
+      {/* / / / / / / / / / / / / / / / / / / / / / / / / /
+      
+      THIS IS THE FIX!
+      This block adds the 'TextInput' so the user
+      can enter the device name. It only shows
+      if no device is connected.
+      
+      / / / / / / / / / / / / / / / / / / / / / / / / /
+      */}
+      {!connectedDevice && (
+        <View style={styles.uuidInputArea}>
+          <Text style={styles.uuidInputLabel}>Enter Device Name to Connect:</Text>
+          <TextInput
+            style={styles.uuidInput}
+            placeholder="e.g., MyTrolley"
+            value={deviceNameInput}
+            onChangeText={setDeviceNameInput}
+            autoCapitalize="none"
+            />
+        </View>
+      )}
+    </View>
+    
     {/* Main animation & connect UI */}
     <View style={styles.centerContainer}>
 
@@ -284,7 +330,7 @@ export default function HomeScreen() {
       {!connectedDevice ? (
         // not connected -> show connect animation
         <LottieView
-          source={require('../assets/animations/connect.json')}
+          source={require('../../assets/images/animations/connect.json')}
           autoPlay
           loop
           style={{ width: 300, height: 300 }}
@@ -292,7 +338,7 @@ export default function HomeScreen() {
       ) : (
         // connected -> show connected animation
         <LottieView
-          source={require('../assets/animations/connected.json')}
+        source={require('../../assets/images/animations/connected.json')}
           autoPlay
           loop
           style={{ width: 300, height: 300 }}
@@ -303,22 +349,16 @@ export default function HomeScreen() {
       <TouchableOpacity
         style={[
           styles.scanConnectButton,
-          { backgroundColor: connectedDevice ? '#FF3B30' : '#007AFF', marginTop: 18 },
+          { backgroundColor: connectedDevice ? '#FF3B30' : '#007AFF', marginTop: 18, width: 200 }, // <-- Made width fixed
         ]}
         onPress={connectedDevice ? async () => {
-            // If connected, call disconnect logic (keep your existing disconnect logic)
+            // If connected, call disconnect logic
             try {
-              // If you have a disconnect function that uses connectedDevice, call it here.
-              // Fallback: calling handleStopVibration to stop vibration then resetting device
-              await (async () => {
-                if (connectedDevice && connectedDevice.cancelConnection) {
-                  // try to disconnect device safely if property available
-                  try { await connectedDevice.cancelConnection(); } catch(e){/* ignore */ }
-                }
-                // your existing cleanup:
-                handleStopVibration();
-                setConnectedDevice(null);
-              })();
+              if (connectedDevice && connectedDevice.cancelConnection) {
+                try { await connectedDevice.cancelConnection(); } catch(e){/* ignore */ }
+              }
+              handleStopVibration();
+              setConnectedDevice(null);
             } catch (e) {
               console.warn('Disconnect error', e);
             }
@@ -332,19 +372,13 @@ export default function HomeScreen() {
       </TouchableOpacity>
     </View>
 
-    {/* Status & Device info */}
-    <View style={styles.deviceStatusRow}>
-      <Text style={styles.deviceStatusLabel}>Device:</Text>
-      <Text style={styles.deviceStatusName}>
-        {connectedDevice ? connectedDevice.name : 'Not connected'}
-      </Text>
-    </View>
+
 
     {/* Vibration animation + Stop button (if vibrating) */}
     {vibrating && (
       <View style={styles.bottomButtonContainer}>
         <LottieView
-          source={require('../assets/animations/vibration.json')}
+          source={require('../../assets/images/animations/vibration.json')}
           autoPlay
           loop
           style={{ width: 180, height: 180 }}
